@@ -1,0 +1,16 @@
+{
+  "objects": {
+    "0": { "dim_x": 0.05, "dim_y": 0.05, "shape": "rectangle" },
+    "setpoint": {
+      "pos_x": 0.9669805950206519,
+      "pos_y": 0.5805064716405177,
+      "shape": "circle",
+      "radius": 0.05,
+      "motion": "fixed"
+    }
+  },
+  "timeseries": [
+    { "0": { "pos_x": 0.036137537894144894, "pos_y": 0.0345554388620553 } },
+    { "0": { "pos_x": 0.7, "pos_y": 0.7 } }
+  ]
+}
