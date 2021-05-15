@@ -68,7 +68,7 @@ class Simulation():
         self.cars = cars;
 
     def calculate_new_orientation(self, car, state):
-        car.direction = (2 * random.random() - 1) * pi
+        car.direction = (2 * random.random() - 1) * (pi)
 
 
 class SimulationUiSerializer():
@@ -113,7 +113,7 @@ class SimulationUiSerializer():
         }
 
 if __name__ == '__main__':
-    simulation = Simulation(iterations=1)
+    simulation = Simulation(iterations=1000, timestep=(1/60))
     simulation.simulate()
 
     print(SimulationUiSerializer().serialize(simulation))
