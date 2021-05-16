@@ -1,0 +1,23 @@
+{
+  "name": "rlprojects",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "lite-server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ali-Nawed/RLProjects.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Ali-Nawed/RLProjects/issues"
+  },
+  "homepage": "https://github.com/Ali-Nawed/RLProjects#readme",
+  "devDependencies": {
+    "lite-server": "^2.6.1"
+  }
+}

@@ -9,18 +9,26 @@
 <body>
     <canvas id="simulator-canvas" height="1000px" width="1000px"></canvas>
     <textarea id="state-json"></textarea>
-    <button id="run-sim" onclick="runSim()">Run Simulation</button>
+    <button id="run-sim" onclick="loadSimulation()">Run Simulation</button>
     <script>
+    
+    
+    let simulation;
 
-    function runSim() {
+    function loadSimulation() {
+        return fetch("./simulations/sample_states.json")
+        .then((res) => res.json())
+        .then((data) => {
+            console.log('data:', data);
+            runSim(data)
+        });
+    }
+
+    function runSim(stateJson) {
         const canvas = document.getElementById("simulator-canvas");
         const context = canvas.getContext('2d');
-
-        const stateJson = JSON.parse(document.getElementById("state-json").value);
-
         const fixedObjects = Object.entries(stateJson.objects)
             .filter(([name, props]) => props.motion === "fixed");
-
         const numberOfFrames = stateJson.timeseries.length;
         let index = 0;
         const step = (timestamp) => {
