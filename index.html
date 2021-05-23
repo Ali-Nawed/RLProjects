@@ -1,116 +1,134 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Box Simulator</title>
+    <style>
+        table,
+        th,
+        td {
+            border: 1px solid black;
+        }
+    </style>
 </head>
+
 <body>
     <canvas id="simulator-canvas" height="1000px" width="1000px"></canvas>
-    <textarea id="state-json"></textarea>
-    <button id="run-sim" onclick="loadSimulation()">Run Simulation</button>
+    <ul>
+        <li><button onclick="loadSimulation('sample_states.json');">1 File</a></li>
+        <li><button onclick="loadSimulation('sample_states_2.json');">2 File</a></li>
+        <li><button onclick="alert(1);">3 File</a></li>
+        <li><button onclick="alert(1);">4 File</a></li>
+    </ul>
     <script>
-    
-    
-    let simulation;
 
-    function loadSimulation() {
-        return fetch("./simulations/sample_states.json")
-        .then((res) => res.json())
-        .then((data) => {
-            console.log('data:', data);
-            runSim(data)
-        });
-    }
+        let simData;
+        let timestamp;
 
-    function runSim(stateJson) {
-        const canvas = document.getElementById("simulator-canvas");
-        const context = canvas.getContext('2d');
-        const fixedObjects = Object.entries(stateJson.objects)
-            .filter(([name, props]) => props.motion === "fixed");
-        const numberOfFrames = stateJson.timeseries.length;
-        let index = 0;
-        const step = (timestamp) => {
-            drawSimulation(context, stateJson, index);
-            index += 1;
+        function loadSimulation(simulationName) {
+            return fetch(`./simulations/${simulationName}`)
+                .then((res) => res.json())
+                .then((data) => {
+                    console.log('data:', data);
+                    simData = data
+                    const canvas = document.getElementById("simulator-canvas");
+                    const context = canvas.getContext('2d');
+                    context.clearRect(0, 0, canvas.width, canvas.height);
+                });
+        }
 
-            if (index !== numberOfFrames) {
-                requestAnimationFrame(step);
+        function runSim(stateJson) {
+            const canvas = document.getElementById("simulator-canvas");
+            const context = canvas.getContext('2d');
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            const fixedObjects = Object.entries(stateJson.objects)
+                .filter(([name, props]) => props.motion === "fixed");
+            const numberOfFrames = stateJson.timeseries.length;
+            let index = 0;
+            const step = (timestamp) => {
+                drawSimulation(context, stateJson, index);
+                index += 1;
+
+                if (index !== numberOfFrames) {
+                    requestAnimationFrame(step);
+                }
+            }
+
+            window.requestAnimationFrame(step);
+        }
+
+        function drawSimulation(context, stateJson, index) {
+            const state = stateJson.timeseries[index];
+            context.clearRect(0, 0, context.canvas.clientWidth, context.canvas.clientHeight);
+            Object.entries(stateJson.objects)
+                .forEach(([objectName, objectMetadata]) => {
+                    const objectState = state[objectName];
+                    const objectInfo = { "name": objectName, ...objectMetadata, ...objectState };
+                    drawObject(objectInfo, context);
+                });
+
+        }
+
+        function drawObject(objectInfo, context) {
+            const shape = objectInfo.shape;
+            if (shape === 'circle') {
+                drawCircle(objectInfo, context);
+            } else if (shape === 'rectangle') {
+                drawRectangle(objectInfo, context);
+            } else {
+                const errorMessage = `Error: Shape ${shape} not defined`;
+                alert(errorMessage);
+                throw errorMessage;
             }
         }
 
-        window.requestAnimationFrame(step);
-    }
+        function drawRectangle(objectInfo, context) {
+            const dimX = objectInfo.dim_x;
+            const dimY = objectInfo.dim_y;
+            const posX = objectInfo.pos_x;
+            const posY = objectInfo.pos_y;
 
-    function drawSimulation(context, stateJson, index) {
-        const state = stateJson.timeseries[index];
-        context.clearRect(0, 0, context.canvas.clientWidth, context.canvas.clientHeight);
-        Object.entries(stateJson.objects)
-            .forEach(([objectName, objectMetadata]) => {
-                const objectState = state[objectName];
-                const objectInfo = { "name": objectName, ...objectMetadata, ...objectState };
-                drawObject(objectInfo, context);
-            });
+            const bottomLeftX = posX - (dimX / 1.0);
+            const bottomLeftY = posY - (dimY / 1.0);
 
-    }
+            const rectWidth = scaleDimToCanvasWidth(dimX, context);
+            const rectHeight = scaleDimToCanvasHeight(dimY, context);
 
-    function drawObject(objectInfo, context) {
-        const shape = objectInfo.shape;
-        if (shape === 'circle') {
-            drawCircle(objectInfo, context);
-        } else if (shape === 'rectangle') {
-            drawRectangle(objectInfo, context);
-        } else {
-            const errorMessage = `Error: Shape ${shape} not defined`;
-            alert(errorMessage);
-            throw errorMessage;
+            const rectStartX = scalePositionToCanvasWidth(bottomLeftX, context);
+            const rectStartY = scalePositionToCanvasHeight(bottomLeftY, context);
+
+            context.fillStyle = nameToColor(objectInfo.name);
+            context.fillRect(rectStartX, rectStartY, rectWidth, rectHeight);
         }
-    }
 
-    function drawRectangle(objectInfo, context) {
-        const dimX = objectInfo.dim_x;
-        const dimY = objectInfo.dim_y;
-        const posX = objectInfo.pos_x;
-        const posY = objectInfo.pos_y;
+        function drawCircle(objectState, context) {
 
-        const bottomLeftX = posX - (dimX / 1.0);
-        const bottomLeftY = posY - (dimY / 1.0);
+        }
 
-        const rectWidth = scaleDimToCanvasWidth(dimX, context);
-        const rectHeight = scaleDimToCanvasHeight(dimY, context);
+        function nameToColor(name) {
+            return 'red';
+        }
 
-        const rectStartX = scalePositionToCanvasWidth(bottomLeftX, context);
-        const rectStartY = scalePositionToCanvasHeight(bottomLeftY, context);
+        function scalePositionToCanvasWidth(value, context) {
+            return Math.round((value + 1) * context.canvas.clientWidth / 2);
+        }
 
-        context.fillStyle = nameToColor(objectInfo.name);
-        context.fillRect(rectStartX, rectStartY, rectWidth, rectHeight);
-    }
+        function scalePositionToCanvasHeight(value, context) {
+            return Math.round((value + 1) * context.canvas.clientHeight / 2);
+        }
 
-    function drawCircle(objectState, context) {
+        function scaleDimToCanvasWidth(value, context) {
+            return Math.round((value) * context.canvas.clientWidth);
+        }
 
-    }
-
-    function nameToColor(name) {
-        return 'red';
-    }
-
-    function scalePositionToCanvasWidth(value, context) {
-        return Math.round((value + 1) * context.canvas.clientWidth / 2);
-    }
-
-    function scalePositionToCanvasHeight(value, context) {
-        return Math.round((value + 1) * context.canvas.clientHeight / 2);
-    }
-
-    function scaleDimToCanvasWidth(value, context) {
-        return Math.round((value) * context.canvas.clientWidth);
-    }
-
-    function scaleDimToCanvasHeight(value, context) {
-        return Math.round((value) * context.canvas.clientHeight);
-    }
+        function scaleDimToCanvasHeight(value, context) {
+            return Math.round((value) * context.canvas.clientHeight);
+        }
 
     </script>
 </body>
+
 </html>

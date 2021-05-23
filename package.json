@@ -19,5 +19,9 @@
   "homepage": "https://github.com/Ali-Nawed/RLProjects#readme",
   "devDependencies": {
     "lite-server": "^2.6.1"
+  },
+  "dependencies": {
+    "@material-ui/core": "^4.11.4",
+    "react": "^17.0.2"
   }
 }
