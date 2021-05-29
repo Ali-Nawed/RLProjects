@@ -1,4 +1,5 @@
 import { drawRectangle, drawCircle } from './simulation';
+import './index.scss';
 
 export function runSim() {
     const canvas = document.getElementById("simulator-canvas");
@@ -47,4 +48,13 @@ function drawObject(objectInfo, context) {
     }
 }
 
-document.getElementById("run-sim").addEventListener("click", () => runSim());
+// document.getElementById("run-sim").addEventListener("click", () => runSim());
+
+const fileTags = document.querySelectorAll(".tile-list > li > a");
+
+console.log(fileTags);
+fileTags.forEach((tag) => {
+        tag.addEventListener('click', (e) => {
+            alert(e.target.innerText);
+        });
+    });
