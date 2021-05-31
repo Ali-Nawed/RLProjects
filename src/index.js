@@ -1,17 +1,15 @@
 import { drawRectangle, drawCircle } from "./simulation";
 import "./index.scss";
 
-export function runSim(stateJson) {
+let simulationAnimationId = 0;
+
+function runSim(stateJson) {
   const canvas = document.getElementById("simulator-canvas");
 
   canvas.width = canvas.clientWidth;
   canvas.height = canvas.clientHeight;
 
   const context = canvas.getContext("2d");
-
-  const fixedObjects = Object.entries(stateJson.objects).filter(
-    ([name, props]) => props.motion === "fixed"
-  );
 
   const numberOfFrames = stateJson.timeseries.length;
   let index = 0;
@@ -20,11 +18,12 @@ export function runSim(stateJson) {
     index += 1;
 
     if (index !== numberOfFrames) {
-      requestAnimationFrame(step);
+      simulationAnimationId = requestAnimationFrame(step);
     }
   };
 
-  window.requestAnimationFrame(step);
+  window.cancelAnimationFrame(simulationAnimationId);
+  simulationAnimationId = window.requestAnimationFrame(step);
 }
 
 function drawSimulation(context, stateJson, index) {
@@ -56,30 +55,18 @@ function drawObject(objectInfo, context) {
 }
 
 async function main() {
-  /*const fileTags = document.querySelectorAll(".tile-list > li > a");
-  console.log(fileTags);
-  fileTags.forEach((tag) => {
-    tag.addEventListener("click", (e) => {
-      alert(e.target.innerText);
-    });
-  });*/
   const simulationFileList = document.getElementById('simulation-file-list');
 
   const simulationResponse = await getSimulationFiles();
-  console.log(simulationResponse);
-  console.log(JSON.parse(simulationResponse));
   const simulations = JSON.parse(simulationResponse).results;
 
   simulations.forEach((simulationName) => {
     const fileTile = createFileTile(simulationName);
     fileTile.addEventListener('click', () => {
-      console.log(fileTile.innerText);
       const fileName = fileTile.innerText;
       getSimulationData(fileName)
         .then((simulationData) => {
-          console.log(simulationData);
           runSim(JSON.parse(simulationData));
-
         });
 
     });
