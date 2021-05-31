@@ -1,11 +1,13 @@
 import { drawRectangle, drawCircle } from "./simulation";
 import "./index.scss";
 
-export function runSim() {
+export function runSim(stateJson) {
   const canvas = document.getElementById("simulator-canvas");
-  const context = canvas.getContext("2d");
 
-  const stateJson = JSON.parse(document.getElementById("state-json").value);
+  canvas.width = canvas.clientWidth;
+  canvas.height = canvas.clientHeight;
+
+  const context = canvas.getContext("2d");
 
   const fixedObjects = Object.entries(stateJson.objects).filter(
     ([name, props]) => props.motion === "fixed"
@@ -53,20 +55,64 @@ function drawObject(objectInfo, context) {
   }
 }
 
-function main() {
-  const fileTags = document.querySelectorAll(".tile-list > li > a");
+async function main() {
+  /*const fileTags = document.querySelectorAll(".tile-list > li > a");
   console.log(fileTags);
   fileTags.forEach((tag) => {
     tag.addEventListener("click", (e) => {
       alert(e.target.innerText);
     });
-  });
+  });*/
+  const simulationFileList = document.getElementById('simulation-file-list');
+
+  const simulationResponse = await getSimulationFiles();
+  console.log(simulationResponse);
+  console.log(JSON.parse(simulationResponse));
+  const simulations = JSON.parse(simulationResponse).results;
+
+  simulations.forEach((simulationName) => {
+    const fileTile = createFileTile(simulationName);
+    fileTile.addEventListener('click', () => {
+      console.log(fileTile.innerText);
+      const fileName = fileTile.innerText;
+      getSimulationData(fileName)
+        .then((simulationData) => {
+          console.log(simulationData);
+          runSim(JSON.parse(simulationData));
+
+        });
+
+    });
+
+    simulationFileList.appendChild(fileTile);
+  })
 }
 
 async function getSimulationFiles() {
-    const files = await fetch('/simulations/')
+    const filesResponse = await fetch('/getsimulations');
+    if (filesResponse.ok) {
+
+      return filesResponse.text();
+    }
 }
 
-function createFileTile() {
+function createFileTile(simulationName) {
+  const template = document.getElementById('simulation-file');
+  const templateClone = template.content.cloneNode(true);
 
+  const listItem = templateClone.querySelector('li');
+
+  const aTag = listItem.querySelector('a');
+  aTag.innerText = simulationName;
+
+  return listItem;
 }
+
+async function getSimulationData(simulationName) {
+  const filesResponse = await fetch(`simulation/${simulationName}`);
+  if (filesResponse.ok) {
+    return filesResponse.json();
+  }
+}
+
+main();
