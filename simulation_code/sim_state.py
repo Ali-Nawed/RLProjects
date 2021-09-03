@@ -116,5 +116,6 @@ if __name__ == '__main__':
     simulation = Simulation(iterations=1000, timestep=(1/60))
     simulation.simulate()
 
-    print(SimulationUiSerializer().serialize(simulation))
+    import json
+    print(json.dumps(SimulationUiSerializer().serialize(simulation)))
 
