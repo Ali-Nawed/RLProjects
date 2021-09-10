@@ -1,6 +1,7 @@
 from math import sin, cos, pi
 import random
 import copy
+import click
 import json
 import uuid
 from simulation_code.models.random_model import RandomModel
@@ -53,8 +54,10 @@ class Simulation():
     def calculate_new_orientation(self, car, state):
         car.direction = self.model.move(state)
 
-
-def runAndSaveSimulation(iterations=DEFAULT_ITERATIONS, timestep=DEFAULT_TIMESTEP):
+@click.command()
+@click.option('--filename', default="", help="json file output name ie simulation.json")
+@click.option('--iterations', default=DEFAULT_ITERATIONS, help="number of steps that the simulation should go through ie 10000")
+def runAndSaveSimulation(filename, iterations, timestep=DEFAULT_TIMESTEP):
     simulation = Simulation(iterations=iterations, timestep=timestep)
     simulation.simulate()
     filename = DEFAULT_SIMULATION_DIR + str(uuid.uuid1()) + ".json"
