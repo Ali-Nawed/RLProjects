@@ -2,6 +2,7 @@ from math import sin, cos, pi
 import random
 import copy
 import json
+import uuid
 from simulation_code.models.random_model import RandomModel
 from simulation_code.simulation_serializer import SimulationUiSerializer
 from simulation_code.car import Car
@@ -9,6 +10,8 @@ from simulation_code.car import Car
 DEFAULT_ITERATIONS = 1000
 DEFAULT_TIMESTEP = 1/60
 DEFAULT_N_CARS = 1
+
+DEFAULT_SIMULATION_DIR = "simulations/"
 
 def euler_integrate(car, timestep):
     displacement = car.speed * timestep
@@ -54,4 +57,6 @@ class Simulation():
 def runAndSaveSimulation(iterations=DEFAULT_ITERATIONS, timestep=DEFAULT_TIMESTEP):
     simulation = Simulation(iterations=iterations, timestep=timestep)
     simulation.simulate()
-    print(json.dumps(SimulationUiSerializer().serialize(simulation)))
+    filename = DEFAULT_SIMULATION_DIR + str(uuid.uuid1()) + ".json"
+    with open(filename, 'w') as outfile:
+        json.dump(SimulationUiSerializer().serialize(simulation), outfile)
