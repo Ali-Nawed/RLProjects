@@ -11,8 +11,6 @@ function runSim(stateJson) {
 
   const context = canvas.getContext("2d");
 
-  drawFixedObjects(stateJson, context);
-
   const numberOfFrames = stateJson.timeseries.length;
   let index = 0;
   const step = (timestamp) => {
@@ -26,14 +24,6 @@ function runSim(stateJson) {
 
   window.cancelAnimationFrame(simulationAnimationId);
   simulationAnimationId = window.requestAnimationFrame(step);
-}
-
-function drawFixedObjects(stateJson, context) {
-  Object.entries(stateJson.objects)
-    .filter(([_, objectMetadata]) => objectMetadata.motion === "fixed")
-    .forEach(([objectName, objectMetadata]) => {
-      drawObject({ name: objectName, ...objectMetadata}, context)
-    });
 }
 
 function drawSimulation(context, stateJson, index) {
