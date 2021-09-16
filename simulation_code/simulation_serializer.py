@@ -15,7 +15,7 @@ class SimulationUiSerializer():
             "pos_x": simulation.setpoint[0],
             "pos_y": simulation.setpoint[1],
             "shape": "circle",
-            "radius": 0.5,
+            "radius": 0.05,
             "motion": "fixed" # Used to indicate that this is not meant to be something redrawn
         }
 

@@ -1,5 +1,6 @@
 from math import sin, cos, pi
 import random
+import numpy as np
 import copy
 import click
 import json
@@ -44,15 +45,22 @@ class Simulation():
 
     def simulate(self):
         cars = {i: Car(i, 0, 0, 0.5, 0.5) for i in range(self.n_cars)}
-        self.setpoint= (random.random(), random.random())
+        self.setpoint= np.asarray([random.random(), random.random()])
         state = SpaceState(cars)
         for i in range(self.iterations):
             for car in cars.values(): self.calculate_new_orientation(car, state)
             update_state(state, self.timestep)
             self.data.append(state.save())
         self.cars = cars
+
     def calculate_new_orientation(self, car, state):
         car.direction = self.model.move(state)
+    
+    def get_state_value(self):
+        return [self.get_car_distance_from_setpoint(self.cars[i]) for i in range(self.n_cars)]
+    
+    def get_car_distance_from_setpoint(self, car):
+        return np.linalg.norm(car.vector, self.setpoint)
 
 @click.command()
 @click.option('--filename', default="", help="json file output name ie simulation.json")

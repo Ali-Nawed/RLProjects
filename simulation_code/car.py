@@ -1,3 +1,5 @@
+import numpy as np
+
 DEFAULT_DIM = (0.05,0.05)
 
 class Car():
@@ -16,6 +18,7 @@ class Car():
         self.name = name
         self.x = x
         self.y = y
+        self.vector = np.asarray([self.x, self.y])
         self.direction = direction
         self.speed = speed
         self.dim = dim
